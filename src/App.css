@@ -1,0 +1,12 @@
+/* App CSS - Tailwind handles most styling */
+
+.smooth-scroll {
+  scroll-behavior: smooth;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #1E40AF 0%, #1e3a8a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

@@ -1,0 +1,46 @@
+<svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Blue square background -->
+  <rect x="40" y="40" width="120" height="120" fill="#2563EB" rx="4"/>
+  
+  <!-- Center circle -->
+  <circle cx="100" cy="100" r="18" fill="white"/>
+  
+  <!-- Top petal -->
+  <ellipse cx="100" cy="55" rx="14" ry="20" fill="white"/>
+  
+  <!-- Top-right petal (45 degrees) -->
+  <ellipse cx="130" cy="70" rx="14" ry="20" transform="rotate(45 130 70)" fill="white"/>
+  
+  <!-- Right petal -->
+  <ellipse cx="145" cy="100" rx="20" ry="14" fill="white"/>
+  
+  <!-- Bottom-right petal (45 degrees) -->
+  <ellipse cx="130" cy="130" rx="14" ry="20" transform="rotate(45 130 130)" fill="white"/>
+  
+  <!-- Bottom petal -->
+  <ellipse cx="100" cy="145" rx="14" ry="20" fill="white"/>
+  
+  <!-- Bottom-left petal (45 degrees) -->
+  <ellipse cx="70" cy="130" rx="14" ry="20" transform="rotate(45 70 130)" fill="white"/>
+  
+  <!-- Left petal -->
+  <ellipse cx="55" cy="100" rx="20" ry="14" fill="white"/>
+  
+  <!-- Top-left petal (45 degrees) -->
+  <ellipse cx="70" cy="70" rx="14" ry="20" transform="rotate(45 70 70)" fill="white"/>
+  
+  <!-- Text: GROUPE -->
+  <text x="200" y="85" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="900" fill="#1F2937" letter-spacing="1">
+    GROUPE
+  </text>
+  
+  <!-- Text: DES ENTREPRENEURS -->
+  <text x="200" y="125" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="900" fill="#1F2937" letter-spacing="0.5">
+    DES ENTREPRENEURS
+  </text>
+  
+  <!-- Text: DU SEPTENTRION -->
+  <text x="200" y="160" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="900" fill="#1F2937" letter-spacing="0.5">
+    DU SEPTENTRION
+  </text>
+</svg>
