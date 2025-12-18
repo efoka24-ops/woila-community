@@ -1,0 +1,17 @@
+{
+  "events": [
+    {
+      "id": "event_1",
+      "title": "Formation Entrepreneuriat Digital",
+      "description": "Une formation complète sur l'entrepreneuriat digital",
+      "date": "2025-12-28T09:00:00Z",
+      "location": "Garoua",
+      "city": "Garoua",
+      "category": "Formation",
+      "capacity": 50,
+      "image_url": "/images/events/digital.jpg",
+      "published": true,
+      "createdAt": "2025-12-18T00:00:00Z"
+    }
+  ]
+}

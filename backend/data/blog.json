@@ -1,0 +1,16 @@
+{
+  "posts": [
+    {
+      "id": "blog_1",
+      "title": "Lancement de Woila Community",
+      "summary": "Un nouveau réseau pour les entrepreneurs du Septentrion",
+      "content": "Woila Community est fière de lancer une nouvelle plateforme pour soutenir les entrepreneurs...",
+      "category": "Annonce",
+      "image_url": "/images/blog/launch.jpg",
+      "author": "Admin",
+      "published": true,
+      "createdAt": "2025-12-18T00:00:00Z",
+      "updatedAt": "2025-12-18T00:00:00Z"
+    }
+  ]
+}

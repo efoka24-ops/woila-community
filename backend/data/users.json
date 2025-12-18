@@ -1,0 +1,13 @@
+{
+  "users": [
+    {
+      "id": "user_1",
+      "email": "admin@woila.com",
+      "password": "$2b$10$YIjlrHWQdwPfDT7VXHb0vu4tplpqvALVVHxRzqPWM2.0cLWnTgcw2",
+      "firstName": "Admin",
+      "lastName": "Woila",
+      "role": "admin",
+      "createdAt": "2025-12-18T00:00:00Z"
+    }
+  ]
+}
