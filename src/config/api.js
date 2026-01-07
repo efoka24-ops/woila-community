@@ -1,7 +1,10 @@
 // Configuration de l'API Backend
 // À utiliser dans votre frontend React
 
-export const API_BASE_URL = process.env.VITE_API_URL || 'http://localhost:5000/api';
+export const API_BASE_URL = process.env.VITE_API_URL || 
+  (import.meta.env.PROD 
+    ? 'https://woila-community.onrender.com/api'
+    : 'http://localhost:5000/api');
 
 export const API_ENDPOINTS = {
   // Auth
