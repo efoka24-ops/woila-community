@@ -1,313 +1,290 @@
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { Edit, Trash2, Plus, Eye, EyeOff, Search } from 'lucide-react';
 import AdminLayout from '../../components/admin/AdminLayout';
-import { apiCall, API_ENDPOINTS } from '../../config/api';
 
 export default function AdminBlog() {
-  const [posts, setPost] = useState([]);
+  const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [form, setForm] = useState({ title: '', summary: '', content: '', category: 'Event', imageUrl: '' });
+  const [search, setSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [page, setPage] = useState(1);
-  const [search, setSearch] = useState('');
-  const [editingId, setEditingId] = useState(null);
-  const [showForm, setShowForm] = useState(false);
-  const [filterCategory, setFilterCategory] = useState('');
-  const [filterPublished, setFilterPublished] = useState('');
-
-  const { register, handleSubmit, reset, formState: { errors } } = useForm();
 
   useEffect(() => {
-    fetchPosts();
-  }, [page, search, filterCategory, filterPublished]);
+    fetchArticles();
+  }, [search, categoryFilter, statusFilter]);
 
-  const fetchPosts = async () => {
+  const fetchArticles = async () => {
     try {
       setLoading(true);
-      const params = new URLSearchParams({
-        page,
-        limit: 10,
-        published: filterPublished || 'all',
-        ...(search && { search }),
-        ...(filterCategory && { category: filterCategory })
+      const token = localStorage.getItem('token');
+      let url = 'http://localhost:5000/api/blog?';
+      const params = new URLSearchParams();
+      if (search) params.append('search', search);
+      if (categoryFilter !== 'all') params.append('category', categoryFilter);
+      if (statusFilter !== 'all') params.append('published', statusFilter === 'published');
+      
+      url += params.toString();
+      const response = await fetch(url, {
+        headers: { 'Authorization': `Bearer ${token}` }
       });
-
-      const response = await apiCall(
-        `${API_ENDPOINTS.BLOG.LIST}?${params}`
-      );
-
-      setPost(response.data);
+      const data = await response.json();
+      setArticles(Array.isArray(data) ? data : []);
     } catch (err) {
-      setError(err.message);
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  const onSubmit = async (data) => {
-    try {
-      setError('');
-      setSuccess('');
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
 
-      if (editingId) {
-        await apiCall(API_ENDPOINTS.BLOG.UPDATE(editingId), {
-          method: 'PUT',
-          body: JSON.stringify(data)
-        });
-        setSuccess('Article mis à jour');
-      } else {
-        await apiCall(API_ENDPOINTS.BLOG.CREATE, {
-          method: 'POST',
-          body: JSON.stringify(data)
-        });
-        setSuccess('Article créé (en brouillon)');
+    if (!form.title || !form.content) {
+      setError('Titre et contenu requis');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const method = editingId ? 'PUT' : 'POST';
+      const url = editingId 
+        ? `http://localhost:5000/api/blog/${editingId}`
+        : 'http://localhost:5000/api/blog';
+      
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ 
+          ...form, 
+          published: editingId ? undefined : false 
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erreur lors de la création');
       }
 
-      fetchPosts();
-      setShowForm(false);
+      setSuccess(editingId ? 'Article mis à jour!' : 'Article créé!');
+      setForm({ title: '', summary: '', content: '', category: 'Annonce', imageUrl: '' });
       setEditingId(null);
-      reset();
+      setShowForm(false);
+      
+      setTimeout(() => {
+        setSuccess('');
+        fetchArticles();
+      }, 1500);
     } catch (err) {
-      setError(err.message);
+      console.error(err);
+      setError(err.message || 'Erreur lors de la création');
     }
   };
 
-  const handlePublish = async (id) => {
+  const handleEdit = (article) => {
+    setForm(article);
+    setEditingId(article.id);
+    setShowForm(true);
+  };
+
+  const handlePublish = async (id, published) => {
     try {
-      await apiCall(API_ENDPOINTS.BLOG.PUBLISH(id), {
-        method: 'POST'
+      const token = localStorage.getItem('token');
+      await fetch(`http://localhost:5000/api/blog/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ published: !published })
       });
-      setSuccess('Article publié');
-      fetchPosts();
+      fetchArticles();
     } catch (err) {
-      setError(err.message);
+      console.error(err);
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Êtes-vous sûr?')) return;
+    if (!window.confirm('Delete article?')) return;
     try {
-      await apiCall(API_ENDPOINTS.BLOG.DELETE(id), {
-        method: 'DELETE'
+      const token = localStorage.getItem('token');
+      await fetch(`http://localhost:5000/api/blog/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
       });
-      setSuccess('Article supprimé');
-      fetchPosts();
+      fetchArticles();
     } catch (err) {
-      setError(err.message);
+      console.error(err);
     }
   };
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-gray-900">Gestion du Blog</h1>
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-gray-800">Blog Management</h1>
           <button
             onClick={() => {
-              setShowForm(!showForm);
               setEditingId(null);
-              reset();
+              setForm({ title: '', summary: '', content: '', category: 'Event', imageUrl: '' });
+              setShowForm(!showForm);
             }}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
-            <Plus className="w-4 h-4" />
-            Nouvel article
+            {showForm ? 'Cancel' : '+ New Article'}
           </button>
         </div>
 
-        {error && (
-          <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">{error}</div>
-        )}
-        {success && (
-          <div className="p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg">{success}</div>
-        )}
-
-        {/* Filters */}
-        <div className="bg-white rounded-lg shadow p-4 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+        {showForm && (
+          <div className="bg-white rounded-lg shadow p-6 mb-6">
+            {error && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                {error}
+              </div>
+            )}
+            {success && (
+              <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                {success}
+              </div>
+            )}
+            <form onSubmit={handleCreate} className="space-y-4">
               <input
                 type="text"
-                placeholder="Rechercher..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg"
+                placeholder="Title"
+                value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                className="w-full px-4 py-2 border rounded"
+                required
               />
-            </div>
-            <select
-              value={filterCategory}
-              onChange={(e) => setFilterCategory(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg"
-            >
-              <option value="">Toutes les catégories</option>
-              <option value="Événement">Événement</option>
-              <option value="Formation">Formation</option>
-              <option value="Opportunité">Opportunité</option>
-              <option value="Portrait">Portrait</option>
-              <option value="Annonce">Annonce</option>
-            </select>
-            <select
-              value={filterPublished}
-              onChange={(e) => setFilterPublished(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg"
-            >
-              <option value="">Tous les statuts</option>
-              <option value="true">Publiés</option>
-              <option value="false">Brouillons</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Form */}
-        {showForm && (
-          <div className="bg-white rounded-lg shadow p-6 space-y-4">
-            <h2 className="text-xl font-semibold">
-              {editingId ? 'Modifier l\'article' : 'Créer un article'}
-            </h2>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">Titre</label>
+              <input
+                type="text"
+                placeholder="Summary"
+                value={form.summary}
+                onChange={(e) => setForm({ ...form, summary: e.target.value })}
+                className="w-full px-4 py-2 border rounded"
+                required
+              />
+              <textarea
+                placeholder="Content"
+                value={form.content}
+                onChange={(e) => setForm({ ...form, content: e.target.value })}
+                className="w-full px-4 py-2 border rounded h-32"
+                required
+              />
+              <div className="grid grid-cols-2 gap-4">
+                <select
+                  value={form.category}
+                  onChange={(e) => setForm({ ...form, category: e.target.value })}
+                  className="px-4 py-2 border rounded"
+                >
+                  <option>Event</option>
+                  <option>Training</option>
+                  <option>Opportunity</option>
+                  <option>Portrait</option>
+                  <option>News</option>
+                </select>
                 <input
-                  {...register('title', { required: 'Requis' })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  type="url"
+                  placeholder="Image URL"
+                  value={form.imageUrl}
+                  onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
+                  className="px-4 py-2 border rounded"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Résumé</label>
-                <textarea
-                  {...register('summary', { required: 'Requis' })}
-                  rows="3"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Contenu</label>
-                <textarea
-                  {...register('content', { required: 'Requis' })}
-                  rows="6"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Catégorie</label>
-                  <select
-                    {...register('category')}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                  >
-                    <option value="Événement">Événement</option>
-                    <option value="Formation">Formation</option>
-                    <option value="Opportunité">Opportunité</option>
-                    <option value="Portrait">Portrait</option>
-                    <option value="Annonce">Annonce</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">URL Image</label>
-                  <input
-                    {...register('imageUrl')}
-                    placeholder="https://..."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                  />
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                >
-                  Enregistrer
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowForm(false);
-                    setEditingId(null);
-                  }}
-                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-                >
-                  Annuler
-                </button>
-              </div>
+              <button type="submit" className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600">
+                {editingId ? 'Update Article' : 'Create Article'}
+              </button>
             </form>
           </div>
         )}
 
-        {/* Table */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Titre</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Catégorie</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Statut</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Vues</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {loading ? (
+        <div className="mb-4 flex gap-4">
+          <input
+            type="text"
+            placeholder="Search articles..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="flex-1 px-4 py-2 border rounded"
+          />
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="px-4 py-2 border rounded"
+          >
+            <option value="all">All Categories</option>
+            <option value="Event">Event</option>
+            <option value="Training">Training</option>
+            <option value="Opportunity">Opportunity</option>
+            <option value="Portrait">Portrait</option>
+            <option value="News">News</option>
+          </select>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-4 py-2 border rounded"
+          >
+            <option value="all">All Status</option>
+            <option value="published">Published</option>
+            <option value="draft">Draft</option>
+          </select>
+        </div>
+
+        {loading ? (
+          <div className="text-center py-6">Loading...</div>
+        ) : (
+          <div className="bg-white rounded-lg shadow overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-100 border-b">
                 <tr>
-                  <td colSpan="5" className="px-6 py-8 text-center">Chargement...</td>
+                  <th className="px-4 py-3 text-left">Title</th>
+                  <th className="px-4 py-3 text-left">Category</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3">Actions</th>
                 </tr>
-              ) : posts.length === 0 ? (
-                <tr>
-                  <td colSpan="5" className="px-6 py-8 text-center text-gray-500">Aucun article</td>
-                </tr>
-              ) : (
-                posts.map(post => (
-                  <tr key={post.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm font-medium">{post.title}</td>
-                    <td className="px-6 py-4 text-sm">
-                      <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">
-                        {post.category}
+              </thead>
+              <tbody>
+                {articles.map(article => (
+                  <tr key={article.id} className="border-b hover:bg-gray-50">
+                    <td className="px-4 py-3">{article.title}</td>
+                    <td className="px-4 py-3">{article.category}</td>
+                    <td className="px-4 py-3 text-center">
+                      <span className={`px-2 py-1 rounded text-xs ${article.published ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                        {article.published ? 'Published' : 'Draft'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm">
-                      <span className={`px-3 py-1 rounded-full text-xs ${
-                        post.published
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-yellow-100 text-yellow-700'
-                      }`}>
-                        {post.published ? 'Publié' : 'Brouillon'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{post.views || 0}</td>
-                    <td className="px-6 py-4 text-sm flex gap-2">
-                      {!post.published && (
-                        <button
-                          onClick={() => handlePublish(post.id)}
-                          className="text-green-600 hover:text-green-700"
-                          title="Publier"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                      )}
+                    <td className="px-4 py-3 text-center space-x-2">
                       <button
-                        onClick={() => {
-                          reset(post);
-                          setEditingId(post.id);
-                          setShowForm(true);
-                        }}
-                        className="text-blue-600 hover:text-blue-700"
+                        onClick={() => handleEdit(article)}
+                        className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600"
                       >
-                        <Edit className="w-4 h-4" />
+                        Edit
                       </button>
                       <button
-                        onClick={() => handleDelete(post.id)}
-                        className="text-red-600 hover:text-red-700"
+                        onClick={() => handlePublish(article.id, article.published)}
+                        className="bg-green-500 text-white px-3 py-1 rounded text-xs hover:bg-green-600"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        {article.published ? 'Unpublish' : 'Publish'}
+                      </button>
+                      <button
+                        onClick={() => handleDelete(article.id)}
+                        className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600"
+                      >
+                        Delete
                       </button>
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </AdminLayout>
   );

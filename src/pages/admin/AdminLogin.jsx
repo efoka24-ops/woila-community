@@ -1,131 +1,85 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { Input } from '../components/ui/input';
-import { Button } from '../components/ui/button';
-import { Label } from '../components/ui/label';
-import { apiCall, API_ENDPOINTS } from '../config/api';
 
 export default function AdminLogin() {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const { register, handleSubmit, formState: { errors } } = useForm();
 
-  const onSubmit = async (data) => {
-    setLoading(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setError('');
+    setLoading(true);
 
     try {
-      const response = await apiCall(API_ENDPOINTS.AUTH.LOGIN, {
+      const response = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
-        body: JSON.stringify({
-          email: data.email,
-          password: data.password
-        })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
       });
 
-      if (response.success) {
-        // Sauvegarder le token
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
-        localStorage.setItem('isAdmin', 'true');
-        
-        // Rediriger vers dashboard
-        navigate('/admin/dashboard');
-      }
+      const data = await response.json();
+
+      if (!response.ok) throw new Error(data.message || 'Login failed');
+
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('isAdmin', 'true');
+      navigate('/admin/dashboard');
     } catch (err) {
-      setError(err.message || 'Email ou mot de passe incorrect');
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
       <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-blue-600 mb-2">WOILA Admin</h1>
-          <p className="text-gray-600">Tableau de bord administrateur</p>
-        </div>
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">WOILA Admin</h1>
+        <p className="text-gray-600 mb-6">Administration Panel</p>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Error */}
-          {error && (
-            <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
-              {error}
-            </div>
-          )}
-
-          {/* Email */}
-          <div className="space-y-2">
-            <Label htmlFor="email">Adresse Email</Label>
-            <Input
-              id="email"
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+            <input
               type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="admin@woila.com"
-              {...register('email', {
-                required: 'Email requis',
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: 'Email invalide'
-                }
-              })}
-              className="w-full"
             />
-            {errors.email && (
-              <p className="text-red-500 text-sm">{errors.email.message}</p>
-            )}
           </div>
 
-          {/* Password */}
-          <div className="space-y-2">
-            <Label htmlFor="password">Mot de passe</Label>
-            <Input
-              id="password"
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+            <input
               type="password"
-              placeholder="••••••••"
-              {...register('password', {
-                required: 'Mot de passe requis',
-                minLength: {
-                  value: 6,
-                  message: 'Au moins 6 caractères'
-                }
-              })}
-              className="w-full"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter password"
             />
-            {errors.password && (
-              <p className="text-red-500 text-sm">{errors.password.message}</p>
-            )}
           </div>
 
-          {/* Submit Button */}
-          <Button
+          {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded">{error}</div>}
+
+          <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold transition"
+            className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50"
           >
-            {loading ? 'Connexion...' : 'Se connecter'}
-          </Button>
+            {loading ? 'Connecting...' : 'Login'}
+          </button>
         </form>
 
-        {/* Info */}
-        <div className="mt-6 p-4 bg-blue-50 rounded-lg text-sm text-gray-600">
-          <p className="font-semibold text-gray-700 mb-1">Compte de test:</p>
-          <p>📧 admin@woila.com</p>
-          <p>🔑 Admin@123</p>
-        </div>
-
-        {/* Footer */}
-        <div className="mt-6 text-center">
-          <a
-            href="/"
-            className="text-blue-600 hover:underline text-sm"
-          >
-            ← Retour au site public
-          </a>
+        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg text-sm">
+          <p className="font-medium text-blue-900 mb-2">Test Credentials:</p>
+          <p className="text-blue-800">📧 admin@woila.com</p>
+          <p className="text-blue-800">🔐 Admin@123</p>
         </div>
       </div>
     </div>

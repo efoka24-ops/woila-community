@@ -6,6 +6,7 @@ dotenv.config();
 
 const authRoutes = require('./routes/authRoutes');
 const memberRoutes = require('./routes/memberRoutes');
+const membershipRoutes = require('./routes/membershipRoutes');
 const blogRoutes = require('./routes/blogRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const contactRoutes = require('./routes/contactRoutes');
@@ -15,8 +16,8 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Health check
 app.get('/health', (req, res) => {
@@ -26,6 +27,7 @@ app.get('/health', (req, res) => {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/members', memberRoutes);
+app.use('/api/membership-requests', membershipRoutes);
 app.use('/api/blog', blogRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/contact', contactRoutes);

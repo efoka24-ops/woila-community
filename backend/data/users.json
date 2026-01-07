@@ -3,7 +3,7 @@
     {
       "id": "user_1",
       "email": "admin@woila.com",
-      "password": "$2b$10$YIjlrHWQdwPfDT7VXHb0vu4tplpqvALVVHxRzqPWM2.0cLWnTgcw2",
+      "password": "$2b$10$wmxV.p5Ue6bgBITwCVjH0u9b/YN9h9CyDNgmYCL2NXajWZLhf.8IC",
       "firstName": "Admin",
       "lastName": "Woila",
       "role": "admin",

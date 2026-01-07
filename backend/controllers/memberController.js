@@ -4,13 +4,14 @@ const memberController = {
   // Créer un membre
   create: (req, res) => {
     try {
-      const { firstName, lastName, email, phone, company, activitySector, city } = req.body;
+      const { firstName, lastName, email, phone, company, city } = req.body;
 
       if (!firstName || !lastName || !email) {
         return res.status(400).json({ error: 'Champs requis manquants' });
       }
 
       const data = readJSON('members.json');
+      if (!data.members) data.members = [];
       
       if (data.members.some(m => m.email === email)) {
         return res.status(400).json({ error: 'Email déjà enregistré' });
@@ -23,9 +24,8 @@ const memberController = {
         email,
         phone,
         company,
-        activitySector,
         city,
-        status: 'pending',
+        status: 'active',
         joinedAt: new Date().toISOString(),
         createdAt: new Date().toISOString()
       };
@@ -46,7 +46,30 @@ const memberController = {
   getAll: (req, res) => {
     try {
       const data = readJSON('members.json');
-      res.json(data.members);
+      const { search, city, page = 1, limit = 10 } = req.query;
+      let members = data.members || [];
+      
+      // Filtrer par recherche
+      if (search) {
+        members = members.filter(m => 
+          `${m.firstName} ${m.lastName}`.toLowerCase().includes(search.toLowerCase()) ||
+          m.email.toLowerCase().includes(search.toLowerCase())
+        );
+      }
+      
+      // Filtrer par ville
+      if (city && city !== 'all') {
+        members = members.filter(m => m.city === city);
+      }
+      
+      // Pagination
+      const pageNum = parseInt(page) || 1;
+      const limitNum = parseInt(limit) || 10;
+      const startIndex = (pageNum - 1) * limitNum;
+      const endIndex = startIndex + limitNum;
+      const paginatedMembers = members.slice(startIndex, endIndex);
+      
+      res.json(paginatedMembers);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

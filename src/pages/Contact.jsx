@@ -9,6 +9,8 @@ export function Contact() {
     message: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -18,15 +20,35 @@ export function Contact() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // In a real app, you would send this to a backend
-    console.log("Form submitted:", formData);
-    setSubmitted(true);
-    setTimeout(() => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch("http://localhost:5000/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erreur lors de l'envoi du message");
+      }
+
+      setSubmitted(true);
       setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
-      setSubmitted(false);
-    }, 3000);
+      setTimeout(() => {
+        setSubmitted(false);
+      }, 3000);
+    } catch (err) {
+      setError(err.message || "Une erreur s'est produite");
+      console.error("Erreur:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -87,6 +109,12 @@ export function Contact() {
               {submitted && (
                 <div className="bg-green-50 border border-green-200 text-green-800 p-4 rounded-lg mb-6">
                   ✓ Merci! Votre message a été envoyé avec succès.
+                </div>
+              )}
+
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-lg mb-6">
+                  ✗ Erreur: {error}
                 </div>
               )}
 
@@ -157,9 +185,10 @@ export function Contact() {
 
                 <button
                   type="submit"
-                  className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition"
+                  disabled={loading}
+                  className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Envoyer le Message
+                  {loading ? "Envoi en cours..." : "Envoyer le Message"}
                 </button>
               </form>
             </div>

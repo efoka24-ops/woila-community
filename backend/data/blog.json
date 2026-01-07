@@ -1,16 +1,108 @@
 {
   "posts": [
     {
-      "id": "blog_1",
+      "id": "blog_1704643200000",
       "title": "Lancement de Woila Community",
       "summary": "Un nouveau réseau pour les entrepreneurs du Septentrion",
-      "content": "Woila Community est fière de lancer une nouvelle plateforme pour soutenir les entrepreneurs...",
+      "content": "Woila Community est fière de lancer une nouvelle plateforme pour soutenir les entrepreneurs et les professionnels du Septentrion. Notre mission est de créer un écosystème dynamique où les talents peuvent se rencontrer, partager leurs expériences et collaborer pour innover.\n\nNous croyons qu'en travaillant ensemble, nous pouvons créer des opportunités d'affaires et de développement personnel pour tous nos membres.",
       "category": "Annonce",
-      "image_url": "/images/blog/launch.jpg",
-      "author": "Admin",
+      "imageUrl": "https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&h=400",
+      "author": "admin@woila.com",
       "published": true,
-      "createdAt": "2025-12-18T00:00:00Z",
-      "updatedAt": "2025-12-18T00:00:00Z"
+      "views": 44,
+      "createdAt": "2024-01-07T10:00:00Z",
+      "updatedAt": "2024-01-07T10:00:00Z"
+    },
+    {
+      "id": "blog_1704729600000",
+      "title": "Formation: Entrepreneuriat digital en 2026",
+      "summary": "Maîtrisez les outils modernes pour lancer votre entreprise en ligne",
+      "content": "Cette formation intensive vous guidera à travers les étapes essentielles pour lancer et développer une entreprise digitale.\n\nAu programme:\n- Les fondamentaux du business plan\n- Marketing digital et réseaux sociaux\n- Gestion des finances\n- Outils de productivité et automatisation\n- Étude de cas pratiques\n\nFormateur: Jean-Claude Mbarga, expert en entrepreneuriat digital avec 15 ans d'expérience.",
+      "category": "Formation",
+      "imageUrl": "https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&h=400",
+      "author": "admin@woila.com",
+      "published": true,
+      "views": 133,
+      "createdAt": "2024-01-06T14:30:00Z",
+      "updatedAt": "2024-01-06T14:30:00Z"
+    },
+    {
+      "id": "blog_1704816000000",
+      "title": "Conférence: Innovation et technologie en Afrique",
+      "summary": "Les dernières tendances technologiques pour le continent africain",
+      "content": "Rejoignez-nous pour une conférence inspirante sur les innovations technologiques qui transforment l'Afrique.\n\nParticipants:\n- Ngozi Okonkwo (Nigeria) - Fondatrice de TechHub\n- Amira Hassan (Cameroun) - CTO chez Woila\n- David Kapita (Kenya) - Expert en FinTech\n\nDate: 15 février 2026\nLieu: Centre des Congrès de Garoua\nHeure: 9h - 17h\n\nInscription: 50 000 FCFA",
+      "category": "Événement",
+      "imageUrl": "https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&h=400",
+      "author": "admin@woila.com",
+      "published": true,
+      "views": 89,
+      "createdAt": "2024-01-05T09:15:00Z",
+      "updatedAt": "2024-01-05T09:15:00Z"
+    },
+    {
+      "id": "blog_1704902400000",
+      "title": "Portrait: Amira Hassan - De l'idée au succès",
+      "summary": "Rencontrez Amira, une femme entrepreneur qui a transformé sa vision en réalité",
+      "content": "Amira Hassan a fondé sa première startup à 22 ans. Aujourd'hui, elle dirige une équipe de 25 personnes et a levé 2 millions de dollars pour son entreprise de technologie.\n\n\"J'ai grandi en croyant que les rêves peuvent devenir réalité si on travaille dur.\"\n\nDe son enfance à Douala à son succès international, Amira partage son parcours inspirant et ses conseils pour les jeunes entrepreneurs.\n\nLire l'interview complète pour découvrir:\n- Comment elle a commencé\n- Les défis qu'elle a surmontés\n- Ses projets futurs\n- Ses conseils pour les futurs entrepreneurs",
+      "category": "Portrait",
+      "imageUrl": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&h=400",
+      "author": "admin@woila.com",
+      "published": true,
+      "views": 156,
+      "createdAt": "2024-01-04T11:45:00Z",
+      "updatedAt": "2024-01-04T11:45:00Z"
+    },
+    {
+      "id": "blog_1704988800000",
+      "title": "Opportunité: Recrutement Développeur Full-Stack",
+      "summary": "Woila Community recrute un développeur passionné pour rejoindre notre équipe",
+      "content": "Nous recherchons un développeur Full-Stack talentueux pour rejoindre notre équipe en croissance.\n\nRequis:\n- 3-5 ans d'expérience en développement\n- Maîtrise de React, Node.js et bases de données\n- Passion pour la qualité du code\n- Excellent en communication\n\nNous offrons:\n- Salaire compétitif\n- Environnement de travail flexible\n- Formation continue\n- Équipe dynamique et collaborative\n- Participation aux bénéfices\n\nIntéressé? Envoyez votre CV à careers@woila.com\n\nDate limite: 31 janvier 2026",
+      "category": "Opportunité",
+      "imageUrl": "https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&h=400",
+      "author": "admin@woila.com",
+      "published": true,
+      "views": 203,
+      "createdAt": "2024-01-03T13:20:00Z",
+      "updatedAt": "2024-01-03T13:20:00Z"
+    },
+    {
+      "id": "blog_1705075200000",
+      "title": "Formation: Finance personnelle pour entrepreneurs",
+      "summary": "Apprenez à gérer vos finances et planifier votre croissance",
+      "content": "Une formation pratique sur la gestion financière adaptée aux entrepreneurs.\n\nThèmes abordés:\n- Comptabilité de base\n- Gestion de trésorerie\n- Fiscalité pour les indépendants\n- Levée de fonds\n- Planification budgétaire\n\nFormateur: Marie-Claire Ngo, Expert-comptable certifiée avec 20 ans d'expérience.\n\nDate: 22 janvier 2026\nDurée: 3 jours\nLieu: Garoua ou En ligne\nTarif: 75 000 FCFA",
+      "category": "Formation",
+      "imageUrl": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&h=400",
+      "author": "admin@woila.com",
+      "published": true,
+      "views": 80,
+      "createdAt": "2024-01-02T08:30:00Z",
+      "updatedAt": "2024-01-02T08:30:00Z"
+    },
+    {
+      "id": "blog_1705161600000",
+      "title": "Portrait: Ibrahim Sow - L'innovateur social",
+      "summary": "Comment Ibrahim crée un impact positif dans sa communauté",
+      "content": "Ibrahim Sow a créé une plateforme qui aide les jeunes des zones rurales à accéder à l'éducation en ligne.\n\nEn seulement 2 ans, sa plateforme a impacté plus de 5000 étudiants et a généré 500 000 $ en chiffre d'affaires.\n\n\"Le succès n'est pas seulement dans le profit, c'est aussi dans l'impact que vous créez.\"\n\nDécouvrez comment Ibrahim combine entrepreneuriat et impact social pour créer un modèle de business durable.",
+      "category": "Portrait",
+      "imageUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=400",
+      "author": "admin@woila.com",
+      "published": true,
+      "views": 121,
+      "createdAt": "2024-01-01T16:00:00Z",
+      "updatedAt": "2024-01-01T16:00:00Z"
+    },
+    {
+      "id": "blog_1705248000000",
+      "title": "Atelier Gratuit: Les bases du Marketing Digital",
+      "summary": "Cet atelier gratuit couvre les outils essentiels du marketing en 2026",
+      "content": "Participez à notre atelier gratuit pour découvrir comment utiliser le digital pour promouvoir votre business.\n\nAu programme:\n- SEO et SEM\n- Réseaux sociaux\n- Email marketing\n- Analytics et ROI\n\nDate: 12 janvier 2026\nHeure: 14h-16h\nLieu: Centre Culturel de Garoua\nGratuit | Inscription requise\n\nIntéressé? Rendez-vous sur notre page des événements.",
+      "category": "Formation",
+      "imageUrl": "https://images.unsplash.com/photo-1460925895917-adf4e565b900?w=600&h=400",
+      "author": "admin@woila.com",
+      "published": false,
+      "views": 0,
+      "createdAt": "2024-01-07T12:00:00Z",
+      "updatedAt": "2024-01-07T12:00:00Z"
     }
   ]
 }

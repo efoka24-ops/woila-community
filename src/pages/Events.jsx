@@ -1,6 +1,4 @@
-import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, MapPin, Clock, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -14,24 +12,49 @@ export default function Events() {
   const [selectedCity, setSelectedCity] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [viewMode, setViewMode] = useState('calendar');
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [registrationForm, setRegistrationForm] = useState({ firstName: '', lastName: '', email: '' });
+  const [registrationLoading, setRegistrationLoading] = useState(false);
+  const [registrationMessage, setRegistrationMessage] = useState('');
 
-  const { data: events = [], isLoading } = useQuery({
-    queryKey: ['events'],
-    queryFn: () => base44.entities.Event.filter({ published: true }, 'date', 100)
-  });
+  // Fetch events from backend
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/events');
+        const data = await response.json();
+        // Filter only published events for frontend view
+        const publishedEvents = Array.isArray(data) ? data.filter(e => e.published !== false) : [];
+        setEvents(publishedEvents);
+      } catch (err) {
+        console.error('Erreur lors du chargement des événements:', err);
+        setEvents([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   const filteredEvents = events.filter(event => {
-    const cityMatch = selectedCity === 'all' || event.city === selectedCity;
+    const cityMatch = selectedCity === 'all' || event.city === selectedCity || event.location === selectedCity;
     const categoryMatch = selectedCategory === 'all' || event.category === selectedCategory;
     return cityMatch && categoryMatch;
   });
 
   const categoryColors = {
     'Formation': 'bg-green-100 text-green-800',
+    'Training': 'bg-green-100 text-green-800',
     'Networking': 'bg-blue-100 text-blue-800',
     'Conférence': 'bg-purple-100 text-purple-800',
+    'Conference': 'bg-purple-100 text-purple-800',
     'Atelier': 'bg-amber-100 text-amber-800',
-    'Autre': 'bg-gray-100 text-gray-800'
+    'Workshop': 'bg-amber-100 text-amber-800',
+    'Autre': 'bg-gray-100 text-gray-800',
+    'Other': 'bg-gray-100 text-gray-800'
   };
 
   const monthStart = startOfMonth(currentMonth);
@@ -42,10 +65,39 @@ export default function Events() {
     return filteredEvents.filter(event => isSameDay(new Date(event.date), day));
   };
 
-  const upcomingEvents = filteredEvents
-    .filter(event => new Date(event.date) >= new Date())
-    .sort((a, b) => new Date(a.date) - new Date(b.date))
-    .slice(0, 6);
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    if (!selectedEvent) return;
+
+    setRegistrationLoading(true);
+    setRegistrationMessage('');
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/events/${selectedEvent.id}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(registrationForm)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Erreur lors de l\'inscription');
+      }
+
+      setRegistrationMessage('✅ Inscription réussie!');
+      setRegistrationForm({ firstName: '', lastName: '', email: '' });
+      
+      setTimeout(() => {
+        setSelectedEvent(null);
+        setRegistrationMessage('');
+      }, 2000);
+    } catch (err) {
+      setRegistrationMessage(`❌ ${err.message}`);
+    } finally {
+      setRegistrationLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -169,7 +221,8 @@ export default function Events() {
                         {dayEvents.slice(0, 2).map(event => (
                           <div
                             key={event.id}
-                            className={`text-xs p-1 rounded truncate ${categoryColors[event.category]}`}
+                            onClick={() => setSelectedEvent(event)}
+                            className={`text-xs p-1 rounded truncate cursor-pointer hover:opacity-80 transition-opacity ${categoryColors[event.category]}`}
                           >
                             {event.title}
                           </div>
@@ -187,7 +240,7 @@ export default function Events() {
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {isLoading ? (
+              {loading ? (
                 Array(6).fill(0).map((_, i) => (
                   <div key={i} className="bg-white rounded-xl shadow-lg overflow-hidden animate-pulse">
                     <div className="h-48 bg-gray-200"></div>
@@ -209,7 +262,8 @@ export default function Events() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300"
+                    onClick={() => setSelectedEvent(event)}
+                    className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-105"
                   >
                     {event.image_url ? (
                       <div className="relative h-48">
@@ -273,42 +327,130 @@ export default function Events() {
         </div>
       </section>
 
-      {/* Upcoming Events */}
-      {upcomingEvents.length > 0 && viewMode === 'calendar' && (
-        <section className="py-12 bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-8">Prochains événements</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {upcomingEvents.map((event, index) => (
-                <motion.div
-                  key={event.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300"
-                >
-                  <div className="flex items-start space-x-4">
-                    <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex flex-col items-center justify-center text-white">
-                      <span className="text-2xl font-bold">{format(new Date(event.date), 'd')}</span>
-                      <span className="text-xs uppercase">{format(new Date(event.date), 'MMM', { locale: fr })}</span>
-                    </div>
-                    <div className="flex-1">
-                      <Badge className={`${categoryColors[event.category]} mb-2`}>
-                        {event.category}
-                      </Badge>
-                      <h3 className="font-bold text-gray-900">{event.title}</h3>
-                      <p className="text-sm text-gray-600 mt-1">
-                        <MapPin className="w-3 h-3 inline mr-1" />
-                        {event.city}
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
+      {/* Event Details Modal */}
+      {selectedEvent && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          >
+            {/* Header */}
+            <div className="relative h-64 bg-gradient-to-br from-indigo-500 to-purple-600">
+              {selectedEvent.image_url && (
+                <img
+                  src={selectedEvent.image_url}
+                  alt={selectedEvent.title}
+                  className="w-full h-full object-cover"
+                />
+              )}
+              <button
+                onClick={() => setSelectedEvent(null)}
+                className="absolute top-4 right-4 bg-white/90 hover:bg-white rounded-full p-2 transition-colors"
+              >
+                ✕
+              </button>
+              <div className="absolute bottom-0 left-0 right-0 bg-black/30 p-6">
+                <Badge className={`${categoryColors[selectedEvent.category]} mb-4`}>
+                  {selectedEvent.category}
+                </Badge>
+                <h1 className="text-3xl font-bold text-white">{selectedEvent.title}</h1>
+              </div>
             </div>
-          </div>
-        </section>
+
+            {/* Content */}
+            <div className="p-8 space-y-6">
+              {/* Info */}
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="flex items-start space-x-4">
+                  <Calendar className="w-5 h-5 text-indigo-600 flex-shrink-0 mt-1" />
+                  <div>
+                    <p className="text-sm text-gray-600">Date</p>
+                    <p className="font-semibold text-gray-900">
+                      {format(new Date(selectedEvent.date), 'EEEE d MMMM yyyy à HH:mm', { locale: fr })}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-4">
+                  <MapPin className="w-5 h-5 text-indigo-600 flex-shrink-0 mt-1" />
+                  <div>
+                    <p className="text-sm text-gray-600">Lieu</p>
+                    <p className="font-semibold text-gray-900">{selectedEvent.location || selectedEvent.city}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Description */}
+              {selectedEvent.description && (
+                <div>
+                  <h3 className="font-bold text-gray-900 mb-2">Description</h3>
+                  <p className="text-gray-600 leading-relaxed">{selectedEvent.description}</p>
+                </div>
+              )}
+
+              {/* Capacity */}
+              <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                <p className="text-sm text-gray-600">Places disponibles</p>
+                <p className="text-2xl font-bold text-indigo-600">
+                  {Math.max(0, selectedEvent.capacity - (selectedEvent.registrations?.length || 0))} / {selectedEvent.capacity}
+                </p>
+              </div>
+
+              {/* Registration Form */}
+              <div className="border-t pt-6">
+                <h3 className="font-bold text-gray-900 mb-4">S'inscrire à cet événement</h3>
+                
+                {registrationMessage && (
+                  <div className={`mb-4 p-3 rounded-lg ${
+                    registrationMessage.includes('✅') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  }`}>
+                    {registrationMessage}
+                  </div>
+                )}
+
+                <form onSubmit={handleRegister} className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <input
+                      type="text"
+                      placeholder="Prénom"
+                      value={registrationForm.firstName}
+                      onChange={(e) => setRegistrationForm({ ...registrationForm, firstName: e.target.value })}
+                      className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                      required
+                    />
+                    <input
+                      type="text"
+                      placeholder="Nom"
+                      value={registrationForm.lastName}
+                      onChange={(e) => setRegistrationForm({ ...registrationForm, lastName: e.target.value })}
+                      className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                      required
+                    />
+                  </div>
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    value={registrationForm.email}
+                    onChange={(e) => setRegistrationForm({ ...registrationForm, email: e.target.value })}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                    required
+                  />
+                  <button
+                    type="submit"
+                    disabled={registrationLoading || selectedEvent.capacity <= (selectedEvent.registrations?.length || 0)}
+                    className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {registrationLoading ? 'Inscription en cours...' : 
+                     selectedEvent.capacity <= (selectedEvent.registrations?.length || 0) ? '❌ Places complètes' :
+                     'S\'inscrire'}
+                  </button>
+                </form>
+              </div>
+            </div>
+          </motion.div>
+        </div>
       )}
     </div>
   );

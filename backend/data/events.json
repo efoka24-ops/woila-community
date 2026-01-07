@@ -4,14 +4,105 @@
       "id": "event_1",
       "title": "Formation Entrepreneuriat Digital",
       "description": "Une formation complète sur l'entrepreneuriat digital",
-      "date": "2025-12-28T09:00:00Z",
+      "date": "2026-01-25T13:23",
       "location": "Garoua",
       "city": "Garoua",
-      "category": "Formation",
+      "category": "Networking",
       "capacity": 50,
       "image_url": "/images/events/digital.jpg",
       "published": true,
-      "createdAt": "2025-12-18T00:00:00Z"
+      "createdAt": "2025-12-18T00:00:00Z",
+      "updatedAt": "2026-01-07T11:22:07.748Z",
+      "registrations": [
+        {
+          "email": "efoka24@gmail.com",
+          "firstName": "Emmanuel",
+          "lastName": "Foka",
+          "registeredAt": "2026-01-07T11:55:37.523Z",
+          "status": "confirmed",
+          "confirmationSentAt": "2026-01-07T12:07:10.122Z",
+          "notes": "enreg",
+          "updatedAt": "2026-01-07T12:07:21.457Z"
+        },
+        {
+          "email": "emmanuel@trugroup.cm",
+          "firstName": "Emmanuel",
+          "lastName": "Foka",
+          "registeredAt": "2026-01-07T12:01:15.110Z"
+        },
+        {
+          "email": "herbve.t@mail.com",
+          "firstName": "Hervé",
+          "lastName": "Tatinou",
+          "registeredAt": "2026-01-07T12:01:42.174Z"
+        }
+      ]
+    },
+    {
+      "id": "event_1767784985485",
+      "title": "conference",
+      "description": "A conference dedicated to Women’s Day, focusing on celebrating achievements, empowering women across various fields, and fostering discussions on gender equality, leadership, and professional growth.",
+      "date": "2026-03-13T12:22",
+      "location": "afg garoua",
+      "category": "Training",
+      "capacity": 500,
+      "attendees": [],
+      "published": false,
+      "createdAt": "2026-01-07T11:23:05.486Z",
+      "updatedAt": "2026-01-07T11:48:04.375Z"
+    },
+    {
+      "id": "event_1767785119185",
+      "title": "women day's",
+      "description": "International Women’s Day is a global event dedicated to celebrating the social, economic, cultural, and political achievements of women. Observed annually on March 8, it also serves as a call to action for accelerating gender equality. This significant occasion brings together communities, organizations, and individuals to honor women’s contributions throughout history while highlighting ongoing challenges they face. Through conferences, campaigns, educational programs, and cultural activities, International Women’s Day fosters awareness, inspires change, and encourages collaboration toward building a more inclusive and equitable world for all.",
+      "date": "2026-03-12T12:25",
+      "location": "garoua",
+      "category": "Training",
+      "capacity": 200,
+      "attendees": [],
+      "published": false,
+      "createdAt": "2026-01-07T11:25:19.185Z",
+      "updatedAt": "2026-01-07T11:25:19.185Z"
+    },
+    {
+      "id": "event_1767785207844",
+      "title": "women day's",
+      "description": "International Women’s Day is a global celebration held annually on March 8th to honor the achievements of women in social, economic, cultural, and political spheres. It is a day that highlights the progress made towards gender equality while also drawing attention to the challenges that remain. Around the world, events, campaigns, and discussions take place to recognize the contributions of women and to advocate for a more inclusive and equitable society. From rallies and conferences to art exhibitions and educational programs, International Women’s Day serves as both a celebration and a call to action for advancing women’s rights everywhere.",
+      "date": "2026-03-14T12:26",
+      "location": "gra",
+      "category": "Conference",
+      "capacity": 200,
+      "attendees": [],
+      "published": false,
+      "createdAt": "2026-01-07T11:26:47.844Z",
+      "updatedAt": "2026-01-07T11:26:47.844Z"
+    },
+    {
+      "id": "event_1767785318236",
+      "title": "women day's",
+      "description": "women day's",
+      "date": "2026-01-18T12:28",
+      "location": "gra",
+      "category": "Conference",
+      "capacity": 12,
+      "attendees": [],
+      "published": false,
+      "createdAt": "2026-01-07T11:28:38.252Z",
+      "updatedAt": "2026-01-07T11:28:38.252Z"
+    },
+    {
+      "id": "event_1767785728558",
+      "title": "iwd garoua",
+      "description": "International Women’s Day in Garoua is a vibrant and inspiring celebration that honors the achievements, resilience, and contributions of women from all walks of life. The city comes alive with colorful parades, cultural performances, and community gatherings, creating a joyful atmosphere of unity and empowerment. Women proudly showcase traditional attire, share stories of progress, and engage in discussions about gender equality and opportunities for the future. Local organizations and leaders join forces to highlight the importance of education, entrepreneurship, and leadership among women, making the event not only a festive occasion but also a platform for meaningful change. This annual celebration in Garoua is a true testament to the strength and spirit of women, inspiring hope and solidarity for generations to come.",
+      "date": "2026-03-20T12:33",
+      "location": "garoua",
+      "city": "garoua",
+      "category": "Networking",
+      "capacity": 120,
+      "registrations": [],
+      "published": false,
+      "createdAt": "2026-01-07T11:35:28.558Z",
+      "updatedAt": "2026-01-07T11:48:11.282Z"
     }
   ]
 }

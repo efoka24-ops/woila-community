@@ -11,6 +11,8 @@ const contactController = {
       }
 
       const data = readJSON('contact.json');
+      if (!data.messages) data.messages = [];
+      
       const newMessage = {
         id: `contact_${Date.now()}`,
         name,
@@ -18,7 +20,7 @@ const contactController = {
         phone,
         subject,
         message,
-        status: 'unread',
+        read: false,
         createdAt: new Date().toISOString()
       };
 
@@ -38,7 +40,8 @@ const contactController = {
   getAll: (req, res) => {
     try {
       const data = readJSON('contact.json');
-      res.json(data.messages.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+      const messages = (data.messages || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      res.json(messages);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
@@ -48,15 +51,17 @@ const contactController = {
   markAsRead: (req, res) => {
     try {
       const data = readJSON('contact.json');
+      if (!data.messages) data.messages = [];
+      
       const message = data.messages.find(m => m.id === req.params.id);
       
       if (!message) {
         return res.status(404).json({ error: 'Message non trouvé' });
       }
 
-      message.status = 'read';
+      message.read = !message.read; // Toggle read status
       writeJSON('contact.json', data);
-      res.json({ message: 'Message marqué comme lu', contact: message });
+      res.json({ message: 'Statut du message mis à jour', contact: message });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
@@ -66,6 +71,8 @@ const contactController = {
   delete: (req, res) => {
     try {
       const data = readJSON('contact.json');
+      if (!data.messages) data.messages = [];
+      
       data.messages = data.messages.filter(m => m.id !== req.params.id);
       writeJSON('contact.json', data);
       res.json({ message: 'Message supprimé' });

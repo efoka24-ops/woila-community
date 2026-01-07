@@ -1,232 +1,168 @@
 import { useState, useEffect } from 'react';
-import { Trash2, MailOpen, Mail, Search } from 'lucide-react';
 import AdminLayout from '../../components/admin/AdminLayout';
-import { apiCall, API_ENDPOINTS } from '../../config/api';
 
 export default function AdminMessages() {
   const [messages, setMessages] = useState([]);
+  const [selectedMsg, setSelectedMsg] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [page, setPage] = useState(1);
-  const [search, setSearch] = useState('');
-  const [selectedMessage, setSelectedMessage] = useState(null);
-  const [filterStatus, setFilterStatus] = useState('');
+  const [filter, setFilter] = useState('all');
 
   useEffect(() => {
     fetchMessages();
-  }, [page, search, filterStatus]);
+  }, [filter]);
 
   const fetchMessages = async () => {
     try {
       setLoading(true);
-      const params = new URLSearchParams({
-        page,
-        limit: 10,
-        ...(search && { search }),
-        ...(filterStatus && { status: filterStatus })
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:5000/api/contact', {
+        headers: { 'Authorization': `Bearer ${token}` }
       });
-
-      const response = await apiCall(
-        `${API_ENDPOINTS.CONTACT.LIST}?${params}`
-      );
-
-      setMessages(response.data);
+      const data = await response.json();
+      
+      // Filter on frontend based on read status
+      let filtered = Array.isArray(data) ? data : [];
+      if (filter === 'unread') {
+        filtered = filtered.filter(m => !m.read);
+      } else if (filter === 'read') {
+        filtered = filtered.filter(m => m.read);
+      }
+      
+      setMessages(filtered);
+      if (filtered.length > 0) setSelectedMsg(filtered[0]);
     } catch (err) {
-      setError(err.message);
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleMarkAsRead = async (id, currentStatus) => {
+  const handleMarkRead = async (id) => {
     try {
-      if (currentStatus === 'unread') {
-        await apiCall(API_ENDPOINTS.CONTACT.MARK_READ(id), {
-          method: 'PUT'
-        });
-        setSuccess('Message marqué comme lu');
-      }
+      const token = localStorage.getItem('token');
+      await fetch(`http://localhost:5000/api/contact/${id}/read`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       fetchMessages();
     } catch (err) {
-      setError(err.message);
+      console.error(err);
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Êtes-vous sûr?')) return;
+    if (!window.confirm('Delete message?')) return;
     try {
-      await apiCall(API_ENDPOINTS.CONTACT.DELETE(id), {
-        method: 'DELETE'
+      const token = localStorage.getItem('token');
+      await fetch(`http://localhost:5000/api/contact/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
       });
-      setSuccess('Message supprimé');
-      setSelectedMessage(null);
+      setSelectedMsg(null);
       fetchMessages();
     } catch (err) {
-      setError(err.message);
+      console.error(err);
     }
   };
 
   return (
     <AdminLayout>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Messages List */}
-        <div className="lg:col-span-1 space-y-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">Messages</h1>
-            
-            {error && (
-              <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg mb-4">{error}</div>
-            )}
-            {success && (
-              <div className="p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg mb-4">{success}</div>
-            )}
-          </div>
+      <div className="p-6">
+        <h1 className="text-3xl font-bold text-gray-800 mb-6">Messages Management</h1>
 
-          {/* Filters */}
-          <div className="space-y-3">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Rechercher..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg"
-              />
-            </div>
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-            >
-              <option value="">Tous les statuts</option>
-              <option value="unread">Non lus</option>
-              <option value="read">Lus</option>
-            </select>
-          </div>
-
-          {/* Messages List */}
-          <div className="bg-white rounded-lg shadow divide-y max-h-96 overflow-y-auto">
-            {loading ? (
-              <div className="p-4 text-center text-gray-500">Chargement...</div>
-            ) : messages.length === 0 ? (
-              <div className="p-4 text-center text-gray-500">Aucun message</div>
-            ) : (
-              messages.map(msg => (
-                <div
-                  key={msg.id}
-                  onClick={() => {
-                    setSelectedMessage(msg);
-                    handleMarkAsRead(msg.id, msg.status);
-                  }}
-                  className={`p-4 cursor-pointer hover:bg-gray-50 border-l-4 ${
-                    msg.status === 'unread'
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-300'
-                  }`}
+        {loading ? (
+          <div className="text-center py-6">Loading...</div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Messages List */}
+            <div className="lg:col-span-1">
+              <div className="flex gap-2 mb-4">
+                <select
+                  value={filter}
+                  onChange={(e) => setFilter(e.target.value)}
+                  className="px-4 py-2 border rounded"
                 >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 truncate">{msg.name}</p>
-                      <p className="text-sm text-gray-600 truncate">{msg.subject}</p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {new Date(msg.createdAt).toLocaleDateString('fr-FR')}
-                      </p>
+                  <option value="all">All Messages</option>
+                  <option value="unread">Unread</option>
+                  <option value="read">Read</option>
+                </select>
+              </div>
+              <div className="bg-white rounded-lg shadow overflow-hidden max-h-96 overflow-y-auto">
+                {messages.length === 0 ? (
+                  <div className="p-4 text-center text-gray-500">No messages</div>
+                ) : (
+                  messages.map(msg => (
+                    <div
+                      key={msg.id}
+                      onClick={() => setSelectedMsg(msg)}
+                      className={`p-4 border-b cursor-pointer hover:bg-gray-50 ${
+                        selectedMsg?.id === msg.id ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
+                      } ${!msg.read ? 'bg-yellow-50' : ''}`}
+                    >
+                      <p className="font-bold text-sm">{msg.name}</p>
+                      <p className="text-xs text-gray-600 truncate">{msg.subject || 'No subject'}</p>
+                      {!msg.read && <div className="mt-1 text-xs text-blue-600">● Unread</div>}
                     </div>
-                    {msg.status === 'unread' && (
-                      <div className="w-2 h-2 bg-blue-500 rounded-full ml-2 flex-shrink-0 mt-2" />
-                    )}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
+                  ))
+                )}
+              </div>
+            </div>
 
-        {/* Message Detail */}
-        <div className="lg:col-span-2">
-          {selectedMessage ? (
-            <div className="bg-white rounded-lg shadow p-6 space-y-6">
-              {/* Header */}
-              <div className="space-y-4">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900">{selectedMessage.subject}</h2>
-                  <p className="text-sm text-gray-600 mt-1">
-                    De: <strong>{selectedMessage.name}</strong>
-                  </p>
-                </div>
+            {/* Message Detail */}
+            {selectedMsg && (
+              <div className="lg:col-span-2">
+                <div className="bg-white rounded-lg shadow p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h2 className="text-2xl font-bold">{selectedMsg.name}</h2>
+                      <p className="text-gray-600">{selectedMsg.email}</p>
+                      {selectedMsg.phone && <p className="text-gray-600">{selectedMsg.phone}</p>}
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleMarkRead(selectedMsg.id)}
+                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm"
+                      >
+                        {selectedMsg.read ? 'Mark Unread' : 'Mark Read'}
+                      </button>
+                      <button
+                        onClick={() => handleDelete(selectedMsg.id)}
+                        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 text-sm"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
 
-                <div className="grid grid-cols-2 gap-4 py-4 border-y">
-                  <div>
-                    <p className="text-sm text-gray-600">Email</p>
-                    <p className="font-medium">{selectedMessage.email}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Téléphone</p>
-                    <p className="font-medium">{selectedMessage.phone || 'N/A'}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Date</p>
-                    <p className="font-medium">
-                      {new Date(selectedMessage.createdAt).toLocaleDateString('fr-FR')}
+                  <div className="mb-4 pb-4 border-b">
+                    <p className="text-sm text-gray-500">
+                      {selectedMsg.createdAt ? new Date(selectedMsg.createdAt).toLocaleString() : 'N/A'}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Statut</p>
-                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                      selectedMessage.status === 'unread'
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'bg-gray-100 text-gray-700'
-                    }`}>
-                      {selectedMessage.status === 'unread' ? 'Non lu' : 'Lu'}
-                    </span>
+
+                  {selectedMsg.subject && (
+                    <div className="mb-4">
+                      <p className="text-sm font-bold text-gray-600">Subject:</p>
+                      <p className="text-lg">{selectedMsg.subject}</p>
+                    </div>
+                  )}
+
+                  <div className="bg-gray-50 p-4 rounded mb-4 max-h-64 overflow-y-auto">
+                    <p className="text-sm font-bold text-gray-600 mb-2">Message:</p>
+                    <p className="text-gray-800 whitespace-pre-wrap">{selectedMsg.message}</p>
                   </div>
-                </div>
-              </div>
 
-              {/* Message */}
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">Message</h3>
-                <div className="bg-gray-50 rounded-lg p-4 text-gray-700 whitespace-pre-wrap">
-                  {selectedMessage.message}
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex gap-3">
-                {selectedMessage.status === 'unread' && (
-                  <button
-                    onClick={() => handleMarkAsRead(selectedMessage.id, 'unread')}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  <a
+                    href={`mailto:${selectedMsg.email}`}
+                    className="inline-block bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
                   >
-                    <MailOpen className="w-4 h-4" />
-                    Marquer comme lu
-                  </button>
-                )}
-                <a
-                  href={`mailto:${selectedMessage.email}`}
-                  className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-                >
-                  <Mail className="w-4 h-4" />
-                  Répondre
-                </a>
-                <button
-                  onClick={() => handleDelete(selectedMessage.id)}
-                  className="flex items-center gap-2 px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  Supprimer
-                </button>
+                    Reply by Email
+                  </a>
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="bg-white rounded-lg shadow p-12 text-center">
-              <Mail className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">Sélectionnez un message pour le consulter</p>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
     </AdminLayout>
   );

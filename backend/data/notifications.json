@@ -1,0 +1,49 @@
+{
+  "notifications": [
+    {
+      "id": "notif_1767787630121",
+      "eventId": "event_1",
+      "email": "efoka24@gmail.com",
+      "firstName": "Emmanuel",
+      "lastName": "Foka",
+      "subject": "Confirmation - Formation Entrepreneuriat Digital",
+      "message": "\nBonjour Emmanuel,\n\nNous avons bien reçu votre inscription pour l'événement \"Formation Entrepreneuriat Digital\".\n\nDate : 25/01/2026\nLieu : Garoua\n\nNous vous remercions de votre intérêt. À bientôt!\n\nCordialement,\nL'équipe Woila Community",
+      "status": "pending",
+      "createdAt": "2026-01-07T12:07:10.122Z",
+      "sentAt": null
+    },
+    {
+      "id": "notif_1767791132107",
+      "type": "membership_approval",
+      "email": "efoka24@gmail.com",
+      "firstName": "Emmanuel",
+      "lastName": "Foka",
+      "subject": "Bienvenue à Woila Community!",
+      "message": "Bonjour Emmanuel Foka,\n\nNous sommes heureux de vous accueillir dans la communauté Woila Community!\n\nVotre demande d'inscription a été approuvée avec succès. Vous pouvez maintenant accéder à tous les avantages et opportunités disponibles pour nos membres.\n\nBienvenue dans la famille Woila Community!\n\nCordialement,\nL'équipe Woila Community",
+      "status": "pending",
+      "createdAt": "2026-01-07T13:05:32.107Z"
+    },
+    {
+      "id": "notif_1767791621659",
+      "type": "membership_approval",
+      "email": "efoka25@gmail.com",
+      "firstName": "Emmanuel",
+      "lastName": "Foka",
+      "subject": "Bienvenue à Woila Community!",
+      "message": "Bonjour Emmanuel,\n\nBienvenue chez Woila Community!",
+      "status": "pending",
+      "createdAt": "2026-01-07T13:13:41.660Z"
+    },
+    {
+      "id": "notif_1767791915158",
+      "type": "membership_approval",
+      "email": "efoka26@gmail.com",
+      "firstName": "Emmanuel",
+      "lastName": "Foka",
+      "subject": "Bienvenue à Woila Community!",
+      "message": "Bonjour Emmanuel,\n\nBienvenue chez Woila Community!",
+      "status": "pending",
+      "createdAt": "2026-01-07T13:18:35.158Z"
+    }
+  ]
+}

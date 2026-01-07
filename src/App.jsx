@@ -11,6 +11,7 @@ import { Governance } from './pages/Governance';
 import Programs from './pages/Programs';
 import Membership from './pages/Membership';
 import Blog from './pages/Blog';
+import BlogDetail from './pages/BlogDetail';
 import Gallery from './pages/Gallery';
 import Events from './pages/Events';
 import { Contact } from './pages/Contact';
@@ -22,7 +23,11 @@ import AdminMembers from './pages/admin/AdminMembers';
 import AdminBlog from './pages/admin/AdminBlog';
 import AdminEvents from './pages/admin/AdminEvents';
 import AdminMessages from './pages/admin/AdminMessages';
+import AdminMembership from './pages/admin/AdminMembership';
 import ProtectedAdminRoute from './components/admin/ProtectedAdminRoute';
+
+// Public Pages
+import MembershipForm from './pages/MembershipForm';
 
 import './App.css'
 
@@ -72,6 +77,14 @@ function App() {
             </ProtectedAdminRoute>
           }
         />
+        <Route
+          path="/admin/membership"
+          element={
+            <ProtectedAdminRoute>
+              <AdminMembership />
+            </ProtectedAdminRoute>
+          }
+        />
 
         {/* Public Routes */}
         <Route
@@ -89,7 +102,9 @@ function App() {
                   <Route path="/governance" element={<Governance />} />
                   <Route path="/programs" element={<Programs />} />
                   <Route path="/membership" element={<Membership />} />
+                  <Route path="/membership/register" element={<MembershipForm />} />
                   <Route path="/blog" element={<Blog />} />
+                  <Route path="/blog/:id" element={<BlogDetail />} />
                   <Route path="/gallery" element={<Gallery />} />
                   <Route path="/events" element={<Events />} />
                   <Route path="/contact" element={<Contact />} />

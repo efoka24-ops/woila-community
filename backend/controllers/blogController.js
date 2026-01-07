@@ -4,21 +4,23 @@ const blogController = {
   // Créer un article
   create: (req, res) => {
     try {
-      const { title, summary, content, category, image_url } = req.body;
+      const { title, summary, content, category, imageUrl, image_url } = req.body;
 
       if (!title || !content) {
         return res.status(400).json({ error: 'Titre et contenu requis' });
       }
 
       const data = readJSON('blog.json');
+      if (!data.posts) data.posts = [];
+      
       const newPost = {
         id: `blog_${Date.now()}`,
         title,
         summary,
         content,
-        category: category || 'Annonce',
-        image_url,
-        author: req.user?.email || 'Anonyme',
+        category: category || 'Event',
+        imageUrl: imageUrl || image_url,
+        author: req.user?.email || 'Admin',
         published: false,
         views: 0,
         createdAt: new Date().toISOString(),
@@ -34,11 +36,32 @@ const blogController = {
     }
   },
 
-  // Récupérer tous les articles publiés
+  // Récupérer tous les articles (admin view - inclut les brouillons)
   getAll: (req, res) => {
     try {
       const data = readJSON('blog.json');
-      const posts = data.posts.filter(p => p.published);
+      const { search, category, published } = req.query;
+      let posts = data.posts || [];
+      
+      // Filtrer par recherche
+      if (search) {
+        posts = posts.filter(p => 
+          p.title.toLowerCase().includes(search.toLowerCase()) ||
+          p.summary.toLowerCase().includes(search.toLowerCase())
+        );
+      }
+      
+      // Filtrer par catégorie
+      if (category && category !== 'all') {
+        posts = posts.filter(p => p.category === category);
+      }
+      
+      // Filtrer par statut de publication
+      if (published !== undefined && published !== 'all') {
+        const isPublished = published === 'true' || published === true;
+        posts = posts.filter(p => p.published === isPublished);
+      }
+      
       res.json(posts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
     } catch (error) {
       res.status(500).json({ error: error.message });
